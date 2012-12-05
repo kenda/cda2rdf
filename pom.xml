@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>edu.leipzig.dispedia</groupId>
+  <artifactId>cda2rdf</artifactId>
+  <version>0.1</version>
+  <packaging>jar</packaging>
+
+  <name>cda2rdf</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <mdht-version>1.0.0.201109121753</mdht-version>
+    <eclipse-emf-version>2.5.0.v200906151043</eclipse-emf-version>
+    <eclipse-ocl-version>1.3.0.v200905271400</eclipse-ocl-version>
+    <lpg-runtime-version>1.1.0.v200803061910</lpg-runtime-version>
+  </properties>
+
+  <repositories>
+    <repository>
+      <id>openehealth.releases</id>
+      <name>Open eHealth Maven Repository</name>
+      <url>http://repo.openehealth.org/maven2/releases</url>
+    </repository>
+  </repositories>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.openhealthtools.mdht</groupId>
+      <artifactId>org.openhealthtools.mdht.uml.cda</artifactId>
+      <version>${mdht-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openhealthtools.mdht</groupId>
+      <artifactId>org.openhealthtools.mdht.uml.cda.ccd</artifactId>
+      <version>${mdht-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openhealthtools.mdht</groupId>
+      <artifactId>org.openhealthtools.mdht.uml.hl7.datatypes</artifactId>
+      <version>${mdht-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openhealthtools.mdht</groupId>
+      <artifactId>org.openhealthtools.mdht.uml.hl7.rim</artifactId>
+      <version>${mdht-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openhealthtools.mdht</groupId>
+      <artifactId>org.openhealthtools.mdht.uml.hl7.vocab</artifactId>
+      <version>${mdht-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>org.eclipse.emf.common</artifactId>
+      <version>${eclipse-emf-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>org.eclipse.emf.ecore</artifactId>
+      <version>${eclipse-emf-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>org.eclipse.emf.ecore.xmi</artifactId>
+      <version>${eclipse-emf-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>org.eclipse.ocl</artifactId>
+      <version>${eclipse-ocl-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse</groupId>
+      <artifactId>org.eclipse.ocl.ecore</artifactId>
+      <version>${eclipse-ocl-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sourceforge.lpg</groupId>
+      <artifactId>net.sourceforge.lpg.lpgjavaruntime</artifactId>
+      <version>${lpg-runtime-version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.jena</groupId>
+      <artifactId>jena-arq</artifactId>
+      <version>2.9.3</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>exec-maven-plugin</artifactId>
+	<version>1.1</version>
+	<configuration>
+	  <mainClass>edu.leipzig.dispedia.CDA2RDF</mainClass>
+	</configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
