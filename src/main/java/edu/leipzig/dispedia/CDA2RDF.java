@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.*;
 import org.eclipse.emf.common.util.EList;
@@ -60,13 +61,14 @@ public class CDA2RDF implements Converter {
 	Model model = ModelFactory.createDefaultModel();
 	model.setNsPrefix("schema", "http://schema.org/");
 	model.setNsPrefix("dispediao", "http://dispedia.de/o/");
+	model.setNsPrefix("xsd", XSDDatatype.XSD);
 
 	// HACK temporary hack for unique uris
 	int i=0;
 	for(PatientRole patientrole : this.patientRoles){
 
 	    // create new resource for the patient
-	    Resource patient = model.createResource("http://example.com/patient_xy"+i++);
+	    Resource patient = model.createResource("urn:dispedia:"+i++);
 
 	    // Patient name
 	    PN names = patientrole.getPatient().getNames().get(0);
@@ -77,6 +79,16 @@ public class CDA2RDF implements Converter {
 	    CE gender = patientrole.getPatient().getAdministrativeGenderCode();
 	    if (gender != null)
 		patient.addProperty(model.createProperty("http://schema.org/gender"), gender.getCode());
+
+	    // birthdate
+	    TS birthTime = patientrole.getPatient().getBirthTime();
+	    if (birthTime != null){
+		String birthTimeXML = birthTime.getValue().substring(0,4) + "-";
+		birthTimeXML += birthTime.getValue().substring(4,6) + "-";
+		birthTimeXML += birthTime.getValue().substring(6,8);
+		    
+		patient.addProperty(model.createProperty("http://schema.org/birthDate"), model.createTypedLiteral(birthTimeXML, XSDDatatype.XSDdate));
+	    }
 	}
 
 	// output the model as rdf/xml
@@ -88,7 +100,7 @@ public class CDA2RDF implements Converter {
 
     public static void main(String[] args){
 	CDA2RDF c2r = new CDA2RDF();
-	String xml = "<?xml version='1.0' encoding='UTF-8'?><ClinicalDocument xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='urn:hl7-org:v3' xsi:schemaLocation='urn:hl7-org:v3 CDA.xsd'>  <templateId root='2.16.840.1.113883.10.20.1'/>  <code code='34133-9' codeSystem='2.16.840.1.113883.6.1' codeSystemName='LOINC' displayName='Summarization of episode note'/>  <recordTarget>    <patientRole>      <id root='996-756-495' />      <addr use='H'><streetAddressLine>1313 Mockingbird Lane</streetAddressLine><city>Janesville</city><state>WI</state><postalCode>53545</postalCode></addr>      <patient>        <name><given>Henry</given><family>Levin</family></name>      </patient>    </patientRole></recordTarget><recordTarget> <patientRole>      <id root='925-234-523'/>      <addr use='H'><streetAddressLine>1313 Mockingbird Lane</streetAddressLine><city>Janesville</city><state>WI</state><postalCode>53545</postalCode></addr>      <patient><administrativeGenderCode code='M' codeSystem='2.16.840.1.113883.5.1'/> <name><given>Henry2</given><family>Levin2</family></name>      </patient>    </patientRole>  </recordTarget></ClinicalDocument>";
+	String xml = "<?xml version='1.0' encoding='UTF-8'?><ClinicalDocument xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xmlns='urn:hl7-org:v3' xsi:schemaLocation='urn:hl7-org:v3 CDA.xsd'>  <templateId root='2.16.840.1.113883.10.20.1'/>  <code code='34133-9' codeSystem='2.16.840.1.113883.6.1' codeSystemName='LOINC' displayName='Summarization of episode note'/>  <recordTarget>    <patientRole>      <id root='996-756-495' />      <addr use='H'><streetAddressLine>1313 Mockingbird Lane</streetAddressLine><city>Janesville</city><state>WI</state><postalCode>53545</postalCode></addr>      <patient>        <name><given>Henry</given><family>Levin</family></name>      </patient>    </patientRole></recordTarget><recordTarget> <patientRole>      <id root='925-234-523'/>      <addr use='H'><streetAddressLine>1313 Mockingbird Lane</streetAddressLine><city>Janesville</city><state>WI</state><postalCode>53545</postalCode></addr>      <patient><administrativeGenderCode code='M' codeSystem='2.16.840.1.113883.5.1'/> <name><given>Henry2</given><family>Levin2</family></name> <birthTime value='19320924'/>     </patient>    </patientRole>  </recordTarget></ClinicalDocument>";
 	c2r.read(xml);
 	System.out.println(c2r.write());
     }

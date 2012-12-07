@@ -78,6 +78,18 @@ public class RDF2CDA implements Converter {
 		ce.setCode(gender);
 	    }
 
+	    // birthdate
+	    if (res.hasProperty(model.getProperty("http://schema.org/birthDate"))){
+		TS birthTime = DatatypesFactory.eINSTANCE.createTS();
+		patient.setBirthTime(birthTime);
+
+		String birthDate = res.getProperty(model.getProperty("http://schema.org/birthDate")).getString();
+		birthDate = birthDate.replace("-", "");
+		
+		birthTime.setValue(birthDate);
+	    }
+
+
 	    this.patientRoles.add(patientRole);
 	}
     }
@@ -106,7 +118,7 @@ public class RDF2CDA implements Converter {
     }
 
     public static void main(String[] args){
-	String rdf = "<rdf:RDF    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'    xmlns:dispediao='http://dispedia.de/o/'    xmlns:schema='http://schema.org/' >   <rdf:Description rdf:about='http://example.com/patient_xy0'>    <schema:familyName>Levin</schema:familyName>    <schema:givenName>Henry</schema:givenName>  </rdf:Description>  <rdf:Description rdf:about='http://example.com/patient_xy1'>    <schema:gender>M</schema:gender>    <schema:familyName>Levin2</schema:familyName>    <schema:givenName>Henry2</schema:givenName>  </rdf:Description></rdf:RDF>";
+	String rdf = "<rdf:RDF    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'    xmlns:dispediao='http://dispedia.de/o/'    xmlns:schema='http://schema.org/' >   <rdf:Description rdf:about='http://example.com/patient_xy0'>    <schema:familyName>Levin</schema:familyName>    <schema:givenName>Henry</schema:givenName>  </rdf:Description>  <rdf:Description rdf:about='http://example.com/patient_xy1'>    <schema:gender>M</schema:gender> <schema:birthDate rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>1932-09-24</schema:birthDate>   <schema:familyName>Levin2</schema:familyName>    <schema:givenName>Henry2</schema:givenName>  </rdf:Description></rdf:RDF>";
 	RDF2CDA r2c = new RDF2CDA();
 	r2c.read(rdf);
 	System.out.println(r2c.write());
