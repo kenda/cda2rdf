@@ -7,6 +7,7 @@ import java.io.StringWriter;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.emf.common.util.EList;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
 import org.openhealthtools.mdht.uml.cda.Patient;
@@ -63,12 +64,14 @@ public class CDA2RDF implements Converter {
 	model.setNsPrefix("dispediao", "http://dispedia.de/o/");
 	model.setNsPrefix("xsd", XSDDatatype.XSD);
 
-	// HACK temporary hack for unique uris
-	int i=0;
 	for(PatientRole patientrole : this.patientRoles){
 
+	    // build the urn as hashed unixtimestamp
+	    String timestamp = String.valueOf(System.currentTimeMillis()/1000);
+	    String hash = DigestUtils.md5Hex(timestamp).substring(0,8);
+
 	    // create new resource for the patient
-	    Resource patient = model.createResource("urn:dispedia:"+i++);
+	    Resource patient = model.createResource("urn:dispedia:"+hash);
 
 	    // Patient name
 	    PN names = patientrole.getPatient().getNames().get(0);
