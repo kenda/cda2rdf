@@ -61,17 +61,18 @@ public class CDA2RDF implements Converter {
 	// create Jena model
 	Model model = ModelFactory.createDefaultModel();
 	model.setNsPrefix("schema", "http://schema.org/");
-	model.setNsPrefix("dispediao", "http://dispedia.de/o/");
+	model.setNsPrefix("dispediao", "http://www.dispedia.de/o/");
 	model.setNsPrefix("xsd", XSDDatatype.XSD);
 
 	for(PatientRole patientrole : this.patientRoles){
 
 	    // build the urn as hashed unixtimestamp
-	    String timestamp = String.valueOf(System.currentTimeMillis()/1000);
+	    String timestamp = String.valueOf(System.currentTimeMillis()/1000)+Math.random();
 	    String hash = DigestUtils.md5Hex(timestamp).substring(0,8);
 
 	    // create new resource for the patient
 	    Resource patient = model.createResource("urn:dispedia:"+hash);
+	    patient.addProperty(RDF.type, model.createResource("http://www.dispedia.de/o/Patient"));
 
 	    // Patient name
 	    PN names = patientrole.getPatient().getNames().get(0);

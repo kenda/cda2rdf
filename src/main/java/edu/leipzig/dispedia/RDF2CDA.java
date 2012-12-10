@@ -46,51 +46,55 @@ public class RDF2CDA implements Converter {
 	ResIterator itr = model.listSubjects();
 	while (itr.hasNext()){
 	    Resource res = itr.next();
+	    Statement type = res.getProperty(RDF.type);
 
-	    // create a patient object and add it to patient role
-	    PatientRole patientRole = CDAFactory.eINSTANCE.createPatientRole();
-	    Patient patient = CDAFactory.eINSTANCE.createPatient();
-	    patientRole.setPatient(patient);
+	    if ( type != null &&
+		 type.getResource().getURI().equals("http://www.dispedia.de/o/Patient")){
 
-	    // name processing
-	    if (res.hasProperty(model.getProperty("http://schema.org/givenName")) ||
-		res.hasProperty(model.getProperty("http://schema.org/familyName"))){
-		PN name = DatatypesFactory.eINSTANCE.createPN();
-		patient.getNames().add(name);
+		// create a patient object and add it to patient role
+		PatientRole patientRole = CDAFactory.eINSTANCE.createPatientRole();
+		Patient patient = CDAFactory.eINSTANCE.createPatient();
+		patientRole.setPatient(patient);
 
-		if (res.hasProperty(model.getProperty("http://schema.org/givenName"))){
-		    String given = res.getProperty(model.getProperty("http://schema.org/givenName")).getString();
-		    name.addGiven(given);
+		// name processing
+		if (res.hasProperty(model.getProperty("http://schema.org/givenName")) ||
+		    res.hasProperty(model.getProperty("http://schema.org/familyName"))){
+		    PN name = DatatypesFactory.eINSTANCE.createPN();
+		    patient.getNames().add(name);
+
+		    if (res.hasProperty(model.getProperty("http://schema.org/givenName"))){
+			String given = res.getProperty(model.getProperty("http://schema.org/givenName")).getString();
+			name.addGiven(given);
+		    }
+		    if (res.hasProperty(model.getProperty("http://schema.org/familyName"))){
+			String family = res.getProperty(model.getProperty("http://schema.org/familyName")).getString();
+			name.addFamily(family);
+		    }
 		}
-		if (res.hasProperty(model.getProperty("http://schema.org/familyName"))){
-		    String family = res.getProperty(model.getProperty("http://schema.org/familyName")).getString();
-		    name.addFamily(family);
+
+		// gender
+		if (res.hasProperty(model.getProperty("http://schema.org/gender"))){
+		    CE ce = DatatypesFactory.eINSTANCE.createCE();
+		    patient.setAdministrativeGenderCode(ce);
+		    ce.setCodeSystem("2.16.840.1.113883.5.1");
+
+		    String gender = res.getProperty(model.getProperty("http://schema.org/gender")).getString();
+		    ce.setCode(gender);
 		}
-	    }
 
-	    // gender
-	    if (res.hasProperty(model.getProperty("http://schema.org/gender"))){
-		CE ce = DatatypesFactory.eINSTANCE.createCE();
-		patient.setAdministrativeGenderCode(ce);
-		ce.setCodeSystem("2.16.840.1.113883.5.1");
+		// birthdate
+		if (res.hasProperty(model.getProperty("http://schema.org/birthDate"))){
+		    TS birthTime = DatatypesFactory.eINSTANCE.createTS();
+		    patient.setBirthTime(birthTime);
 
-		String gender = res.getProperty(model.getProperty("http://schema.org/gender")).getString();
-		ce.setCode(gender);
-	    }
-
-	    // birthdate
-	    if (res.hasProperty(model.getProperty("http://schema.org/birthDate"))){
-		TS birthTime = DatatypesFactory.eINSTANCE.createTS();
-		patient.setBirthTime(birthTime);
-
-		String birthDate = res.getProperty(model.getProperty("http://schema.org/birthDate")).getString();
-		birthDate = birthDate.replace("-", "");
+		    String birthDate = res.getProperty(model.getProperty("http://schema.org/birthDate")).getString();
+		    birthDate = birthDate.replace("-", "");
 		
-		birthTime.setValue(birthDate);
+		    birthTime.setValue(birthDate);
+		}
+
+		this.patientRoles.add(patientRole);
 	    }
-
-
-	    this.patientRoles.add(patientRole);
 	}
     }
 
@@ -118,7 +122,7 @@ public class RDF2CDA implements Converter {
     }
 
     public static void main(String[] args){
-	String rdf = "<rdf:RDF    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'    xmlns:dispediao='http://dispedia.de/o/'    xmlns:schema='http://schema.org/' >   <rdf:Description rdf:about='http://example.com/patient_xy0'>    <schema:familyName>Levin</schema:familyName>    <schema:givenName>Henry</schema:givenName>  </rdf:Description>  <rdf:Description rdf:about='http://example.com/patient_xy1'>    <schema:gender>M</schema:gender> <schema:birthDate rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>1932-09-24</schema:birthDate>   <schema:familyName>Levin2</schema:familyName>    <schema:givenName>Henry2</schema:givenName>  </rdf:Description></rdf:RDF>";
+	String rdf = "<rdf:RDF    xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'    xmlns:dispediao='http://dispedia.de/o/'    xmlns:schema='http://schema.org/' >   <rdf:Description rdf:about='http://example.com/patient_xy0'>    <schema:familyName>Levin</schema:familyName>    <schema:givenName>Henry</schema:givenName>  </rdf:Description>  <rdf:Description rdf:about='http://example.com/patient_xy1'>    <schema:gender>M</schema:gender> <schema:birthDate rdf:datatype='http://www.w3.org/2001/XMLSchema#date'>1932-09-24</schema:birthDate>   <schema:familyName>Levin2</schema:familyName>    <schema:givenName>Henry2</schema:givenName> <rdf:type rdf:resource='http://www.dispedia.de/o/Patient'/>  </rdf:Description></rdf:RDF>";
 	RDF2CDA r2c = new RDF2CDA();
 	r2c.read(rdf);
 	System.out.println(r2c.write());
