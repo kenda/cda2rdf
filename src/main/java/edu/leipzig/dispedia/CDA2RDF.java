@@ -10,6 +10,7 @@ import com.hp.hpl.jena.vocabulary.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.eclipse.emf.common.util.EList;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
+import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
 import org.openhealthtools.mdht.uml.cda.Patient;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
 import org.openhealthtools.mdht.uml.cda.ccd.CCDPackage;
@@ -38,9 +39,11 @@ public class CDA2RDF implements Converter {
     public void read(String input){
 	// deserialize input
 	CCDPackage.eINSTANCE.eClass();
-	ContinuityOfCareDocument ccdDocument = null;
+	//ContinuityOfCareDocument ccdDocument = null;
+	ClinicalDocument ccdDocument = null;
 	try{
-	    ccdDocument = (ContinuityOfCareDocument) CDAUtil.load(new ByteArrayInputStream(input.getBytes("UTF-8")));
+	    //ccdDocument = (ContinuityOfCareDocument) CDAUtil.load(new ByteArrayInputStream(input.getBytes("UTF-8")));
+	    ccdDocument = CDAUtil.load(new ByteArrayInputStream(input.getBytes("UTF-8")));
 	}
 	catch (Exception e) {
 	    System.out.println(e);
