@@ -2,16 +2,20 @@ package edu.leipzig.dispedia;
 
 import java.io.StringWriter;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+import java.util.UUID;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.*;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.BasicEList;
 import org.openhealthtools.mdht.uml.cda.CDAFactory;
+import org.openhealthtools.mdht.uml.cda.ClinicalDocument;
+import org.openhealthtools.mdht.uml.cda.InfrastructureRootTypeId;
 import org.openhealthtools.mdht.uml.cda.Patient;
 import org.openhealthtools.mdht.uml.cda.PatientRole;
-import org.openhealthtools.mdht.uml.cda.ccd.ContinuityOfCareDocument;
-import org.openhealthtools.mdht.uml.cda.ccd.CCDFactory;
 import org.openhealthtools.mdht.uml.cda.util.CDAUtil;
 import org.openhealthtools.mdht.uml.hl7.datatypes.*;
 
@@ -106,16 +110,70 @@ public class RDF2CDA implements Converter {
     public String write(){
 
 	// create and initialize an instance of the ContinuityOfCareDocument class
-	ContinuityOfCareDocument ccdDocument = CCDFactory.eINSTANCE.createContinuityOfCareDocument().init();
+	ClinicalDocument cdaDocument = CDAFactory.eINSTANCE.createClinicalDocument();
+
+	/* The following attributes are required by CDA/R2 spec.
+	   To be complete valid the author, custodian, legalAuthenticator,
+	   componentOf and component sections have to be added. But they would
+	   have no useful meaning at the moment.
+	*/
+	//build realmCode
+	CS csObj = DatatypesFactory.eINSTANCE.createCS();
+	csObj.setCode("DE");
+	cdaDocument.getRealmCodes().add(csObj);
+
+	//build typeid
+	InfrastructureRootTypeId typeId = CDAFactory.eINSTANCE.createInfrastructureRootTypeId();
+	typeId.setRoot("2.16.840.1.113883.1.3");
+	typeId.setExtension("POCD_HD000040");
+	cdaDocument.setTypeId(typeId);
+
+	// build random document id
+	II id = DatatypesFactory.eINSTANCE.createII();
+	String docUUID = UUID.randomUUID().toString();
+	id.setRoot(docUUID);
+	cdaDocument.setId(id);
+
+	// build code
+	CE code = DatatypesFactory.eINSTANCE.createCE();
+	code.setCode("51897-7");
+	code.setCodeSystem("2.16.840.1.113883.6.1");
+	code.setCodeSystemName("LOINC");
+	code.setDisplayName("Healthcare Associated Infection Report");
+	cdaDocument.setCode(code);
+
+	// build title
+	ST title = DatatypesFactory.eINSTANCE.createST();
+	title.addText("CDA/R2 document " + docUUID);
+	cdaDocument.setTitle(title);
+
+	// build effectiveTime
+	TS etime = DatatypesFactory.eINSTANCE.createTS();
+	SimpleDateFormat formatUTC = new SimpleDateFormat("yyyyMMddHHmmss");
+	formatUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
+	etime.setValue(formatUTC.format(new Date()));
+	cdaDocument.setEffectiveTime(etime);
+
+	// build confidentiality code
+	CE confidentialityCode = DatatypesFactory.eINSTANCE.createCE();
+	confidentialityCode.setCode("N");
+	confidentialityCode.setCodeSystem("2.16.840.1.113883.5.25");
+	cdaDocument.setConfidentialityCode(confidentialityCode);
 
 	// create a patient role object and add it to the document
 	for (PatientRole patientRole : this.patientRoles){
-	    ccdDocument.addPatientRole(patientRole);
-	}
+	    // build random document id
+	    II patId = DatatypesFactory.eINSTANCE.createII();
+	    patId.setRoot(UUID.randomUUID().toString());
+	    patientRole.getIds().add(patId);
 
+	    cdaDocument.addPatientRole(patientRole);
+	}
+	this.patientRoles.clear();
+	
 	StringWriter output = new StringWriter();
 	try{
-	    CDAUtil.save(ccdDocument, output);
+	    CDAUtil.save(cdaDocument, output);
 	} catch (Exception e) {System.out.println(e);}
 
 	return output.toString();
