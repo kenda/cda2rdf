@@ -71,10 +71,10 @@ public class CDA2RDF implements Converter {
 
 	    // build the urn as hashed unixtimestamp
 	    String timestamp = String.valueOf(System.currentTimeMillis()/1000)+Math.random();
-	    String hash = DigestUtils.md5Hex(timestamp).substring(0,8);
+	    String hash = DigestUtils.md5Hex(timestamp).substring(0,10);
 
 	    // create new resource for the patient
-	    Resource patient = model.createResource("urn:dispedia:"+hash);
+	    Resource patient = model.createResource("urn:dispedia:PN:"+hash);
 	    patient.addProperty(RDF.type, model.createResource("http://www.dispedia.de/o/Patient"));
 
 	    // Patient name
