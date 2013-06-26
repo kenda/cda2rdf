@@ -112,19 +112,11 @@
   <build>
     <plugins>
       <plugin>
-	<groupId>org.codehaus.mojo</groupId>
-	<artifactId>exec-maven-plugin</artifactId>
-	<version>1.1</version>
-	<configuration>
-	  <mainClass>edu.leipzig.dispedia.WebService</mainClass>
-	</configuration>
-      </plugin>
-      <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <configuration>
           <archive>
             <manifest>
-              <mainClass>edu.leipzig.dispedia.WebService</mainClass>
+              <mainClass>edu.leipzig.dispedia.CLI</mainClass>
             </manifest>
           </archive>
           <descriptorRefs>
