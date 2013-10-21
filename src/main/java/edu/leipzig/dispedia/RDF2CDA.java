@@ -40,8 +40,6 @@ public class RDF2CDA implements Converter {
      */
     public void read(String input){
 
-	// TODO process rdf and build patient roles
-
 	// create a new model and parse the given rdf
 	Model model = ModelFactory.createDefaultModel();
 	model.read(new StringReader(input), null);
@@ -50,11 +48,10 @@ public class RDF2CDA implements Converter {
 	ResIterator itr = model.listSubjects();
 	while (itr.hasNext()){
 	    Resource res = itr.next();
-	    Statement type = res.getProperty(RDF.type);
 
-	    if ( type != null &&
-		 type.getResource().getURI().equals("http://www.dispedia.de/o/Patient")){
-
+	    if (res.hasProperty(RDF.type, model.createResource("http://www.dispedia.de/o/Patient")) || 
+		res.hasProperty(RDF.type, model.createResource("http://www.dispedia.de/o/Person"))){
+		
 		// create a patient object and add it to patient role
 		PatientRole patientRole = CDAFactory.eINSTANCE.createPatientRole();
 		Patient patient = CDAFactory.eINSTANCE.createPatient();
